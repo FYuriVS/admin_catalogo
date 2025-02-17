@@ -1,4 +1,7 @@
 import 'package:admin_catalogo/core/ui/resources/theme_controller.dart';
+import 'package:admin_catalogo/features/handle-product/data/datasources/register_product_remote_data_source.dart';
+import 'package:admin_catalogo/features/handle-product/data/repositories/register_product_repository_impl.dart';
+import 'package:admin_catalogo/features/handle-product/presentation/view_models/register_product_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -11,4 +14,8 @@ void injector() {
   i.registerSingleton<FlutterSecureStorage>(const FlutterSecureStorage());
   i.registerSingleton<ThemeNotifier>(ThemeNotifier(ThemeMode.light),
       instanceName: 'theme');
+  i.registerFactory<RegisterProductViewModel>(
+    () => RegisterProductViewModel(
+        RegisterProductRepositoryImpl(RegisterProductRemoteDataSource())),
+  );
 }

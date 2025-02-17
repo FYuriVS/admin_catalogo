@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:admin_catalogo/features/handle-product/data/entities/register_product_request.dart';
+import 'package:admin_catalogo/utils/compress_img.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterProductRemoteDataSource {
@@ -17,7 +18,7 @@ class RegisterProductRemoteDataSource {
 
       if (response.isNotEmpty) {
         await uploadImages(productId, request.selectedImages);
-        return productId; // Retorna o ID do produto criado
+        return productId;
       } else {
         throw Exception('Falha ao cadastrar o produto');
       }
@@ -35,13 +36,13 @@ class RegisterProductRemoteDataSource {
     for (var image in selectedImages) {
       final fileName =
           '${DateTime.now().millisecondsSinceEpoch}_${image.path.split('/').last}';
-      final path = 'uploads/$fileName';
+      final path = '$productId/$fileName';
 
       try {
-        final fileBytes = await image.readAsBytes(); // Lê o arquivo como bytes
+        final compressImageBytes = await compressImage(image);
         await Supabase.instance.client.storage
             .from('images')
-            .uploadBinary(path, fileBytes);
+            .uploadBinary(path, compressImageBytes);
 
         final imageUrl =
             Supabase.instance.client.storage.from('images').getPublicUrl(path);
@@ -59,6 +60,6 @@ class RegisterProductRemoteDataSource {
       return "Upload concluído com sucesso.";
     }
 
-    return "Nenhuma imagem foi enviada."; // Garante um retorno em todos os cenários
+    return "Nenhuma imagem foi enviada.";
   }
 }

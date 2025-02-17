@@ -21,13 +21,15 @@ class RegisterProductViewModel extends ChangeNotifier {
     }
 
     try {
+      notifyListeners();
       final response = await registerProductRepository.registerProduct(request);
       if (response.isEmpty) {
         return Result.ok("");
       }
-
+      notifyListeners();
       return Result.ok("Registrado com sucesso!");
     } catch (e) {
+      notifyListeners();
       return Result.error(
         Exception(e.toString()),
       );

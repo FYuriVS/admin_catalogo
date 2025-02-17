@@ -35,39 +35,39 @@ class _ListProductScreenState extends State<ListProductScreen> {
   }
 
   Future<void> deleteProduct(String productId) async {
-    // Deletar o produto da tabela 'products'
-    final response =
-        await _supabase.from('products').delete().eq('id', productId);
-
-    if (response != null) {
-      // Tratar erro de exclusão
-      if (response!.error != null) {
-        return;
-      }
-    }
-
-    // Deletar as imagens associadas ao produto na tabela 'product_images'
-    final imagesResponse = await _supabase
+    final bucketName = 'images';
+    final images = await _supabase
         .from('product_images')
-        .delete()
+        .select('image_url')
         .eq('product_id', productId);
 
-    if (imagesResponse != null) {
-      // Tratar erro de exclusão
-      if (imagesResponse.error != null) {
-        // Tratar erro de exclusão das imagens
-        return;
+    if (images.isNotEmpty) {
+      List<String> filePaths = [];
+
+      for (var image in images) {
+        String imageUrl = image['image_url'];
+
+        Uri uri = Uri.parse(imageUrl);
+        String path = uri.pathSegments.sublist(5).join('/');
+        filePaths.add(path);
+      }
+
+      if (filePaths.isNotEmpty) {
+        await _supabase.storage.from(bucketName).remove(filePaths);
       }
     }
-
-    // Recarregar os produtos após a exclusão
+    await _supabase.from('product_images').delete().eq('product_id', productId);
+    await _supabase.from('products').delete().eq('id', productId);
     _loadProducts();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Produtos")),
+      appBar: AppBar(
+        title: const Text("Produtos"),
+        notificationPredicate: (notification) => false,
+      ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _productsFuture,
         builder: (context, snapshot) {
@@ -85,7 +85,14 @@ class _ListProductScreenState extends State<ListProductScreen> {
             return const Center(child: Text("Nenhum produto encontrado"));
           }
 
-          return ListView.builder(
+          return GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // 2 cards por linha
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.8, // Ajuste conforme necessário
+            ),
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
@@ -94,46 +101,75 @@ class _ListProductScreenState extends State<ListProductScreen> {
                   ? images.first['image_url']
                   : null;
 
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: ListTile(
-                  leading: imageUrl != null
-                      ? Image.network(imageUrl,
-                          width: 50, height: 50, fit: BoxFit.cover)
-                      : const Icon(Icons.image_not_supported),
-                  title: Text(product['name']),
-                  subtitle: Text(product['description'] ?? ""),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () async {
-                      // Confirmar a exclusão antes de realizar a operação
-                      final shouldDelete = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Excluir Produto"),
-                          content: const Text(
-                              "Tem certeza de que deseja excluir este produto?"),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text("Cancelar"),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text("Excluir"),
-                            ),
-                          ],
+              return GestureDetector(
+                onLongPress: () async {
+                  final shouldDelete = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Excluir Produto"),
+                      content: const Text(
+                          "Tem certeza de que deseja excluir este produto?"),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Cancelar"),
                         ),
-                      );
-
-                      if (shouldDelete == true) {
-                        await deleteProduct(product['id']);
-                      }
-                    },
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text("Excluir"),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (shouldDelete == true) {
+                    await deleteProduct(product['id']);
+                  }
+                },
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: imageUrl != null
+                            ? ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12)),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : const Icon(Icons.image_not_supported, size: 50),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product['name'],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                product['description'] ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  onTap: () {
-                    // Aqui você pode abrir uma tela de detalhes do produto
-                  },
                 ),
               );
             },
