@@ -5,7 +5,7 @@ import 'package:admin_catalogo/features/handle-product/domain/repository/registe
 class RegisterProductRepositoryImpl implements RegisterProductRepository {
   final RegisterProductRemoteDataSource datasource;
 
-  RegisterProductRepositoryImpl(this.datasource);
+  RegisterProductRepositoryImpl({required this.datasource});
 
   @override
   Future<String> registerProduct(RegisterProductRequest request) async {

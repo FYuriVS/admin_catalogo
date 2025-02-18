@@ -4,8 +4,6 @@ import 'package:admin_catalogo/utils/compress_img.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterProductRemoteDataSource {
-  RegisterProductRemoteDataSource();
-
   Future<String> registerProduct(RegisterProductRequest request) async {
     try {
       final response = await Supabase.instance.client

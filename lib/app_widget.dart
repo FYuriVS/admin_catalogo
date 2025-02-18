@@ -1,4 +1,4 @@
-import 'package:admin_catalogo/features/handle-product/presentation/screens/list_product_screen.dart';
+import 'package:admin_catalogo/features/handle-product/presentation/screens/products_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
@@ -34,7 +34,7 @@ class _AppWidgetState extends State<AppWidget> {
     );
 
     return Material(
-      child: ListProductScreen(),
+      child: ProductsScreen(),
     );
   }
 }

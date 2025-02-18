@@ -1,65 +1,26 @@
+import 'package:admin_catalogo/application.dart';
 import 'package:admin_catalogo/core/routes/routes.dart';
+import 'package:admin_catalogo/features/handle-product/domain/entities/product.dart';
+import 'package:admin_catalogo/features/handle-product/presentation/view_models/products_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ListProductScreen extends StatefulWidget {
-  const ListProductScreen({super.key});
+class ProductsScreen extends StatefulWidget {
+  const ProductsScreen({super.key});
 
   @override
-  State<ListProductScreen> createState() => _ListProductScreenState();
+  State<ProductsScreen> createState() => _ProductsScreenState();
 }
 
-class _ListProductScreenState extends State<ListProductScreen> {
-  final _supabase = Supabase.instance.client;
-  late Future<List<Map<String, dynamic>>> _productsFuture;
+class _ProductsScreenState extends State<ProductsScreen> {
+  final viewModel = getIt.get<ProductsViewModel>();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadProducts();
+  Future<List<Product>> fetchProducts() async {
+    await viewModel.listProducts.execute();
+    return viewModel.products;
   }
 
-  void _loadProducts() {
-    setState(() {
-      _productsFuture = fetchProducts();
-    });
-  }
-
-  Future<List<Map<String, dynamic>>> fetchProducts() async {
-    final response = await _supabase
-        .from('products')
-        .select('id, name, description, product_images(image_url)')
-        .order('created_at', ascending: false);
-
-    return response;
-  }
-
-  Future<void> deleteProduct(String productId) async {
-    final bucketName = 'images';
-    final images = await _supabase
-        .from('product_images')
-        .select('image_url')
-        .eq('product_id', productId);
-
-    if (images.isNotEmpty) {
-      List<String> filePaths = [];
-
-      for (var image in images) {
-        String imageUrl = image['image_url'];
-
-        Uri uri = Uri.parse(imageUrl);
-        String path = uri.pathSegments.sublist(5).join('/');
-        filePaths.add(path);
-      }
-
-      if (filePaths.isNotEmpty) {
-        await _supabase.storage.from(bucketName).remove(filePaths);
-      }
-    }
-    await _supabase.from('product_images').delete().eq('product_id', productId);
-    await _supabase.from('products').delete().eq('id', productId);
-    _loadProducts();
-  }
+  Future<void> deleteProduct(String productId) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -68,23 +29,9 @@ class _ListProductScreenState extends State<ListProductScreen> {
         title: const Text("Produtos"),
         notificationPredicate: (notification) => false,
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _productsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return const Center(child: Text("Erro ao carregar produtos"));
-          }
-
-          final products = snapshot.data ?? [];
-
-          if (products.isEmpty) {
-            return const Center(child: Text("Nenhum produto encontrado"));
-          }
-
+      body: ListenableBuilder(
+        listenable: viewModel,
+        builder: (context, child) {
           return GridView.builder(
             padding: const EdgeInsets.all(12),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -93,13 +40,12 @@ class _ListProductScreenState extends State<ListProductScreen> {
               mainAxisSpacing: 12,
               childAspectRatio: 0.8, // Ajuste conforme necessário
             ),
-            itemCount: products.length,
+            itemCount: viewModel.products.length,
             itemBuilder: (context, index) {
-              final product = products[index];
-              final images = product['product_images'] as List?;
-              final imageUrl = images != null && images.isNotEmpty
-                  ? images.first['image_url']
-                  : null;
+              final product = viewModel.products[index];
+              final images = product.urlImages as List?;
+              final imageUrl =
+                  images != null && images.isNotEmpty ? images.first : null;
 
               return GestureDetector(
                 onLongPress: () async {
@@ -122,7 +68,7 @@ class _ListProductScreenState extends State<ListProductScreen> {
                     ),
                   );
                   if (shouldDelete == true) {
-                    await deleteProduct(product['id']);
+                    await deleteProduct(product.id);
                   }
                 },
                 child: Card(
@@ -151,7 +97,7 @@ class _ListProductScreenState extends State<ListProductScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                product['name'],
+                                product.name,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold),
                                 maxLines: 1,
@@ -159,7 +105,7 @@ class _ListProductScreenState extends State<ListProductScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                product['description'] ?? "",
+                                product.description,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(color: Colors.grey),
@@ -179,7 +125,6 @@ class _ListProductScreenState extends State<ListProductScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.pushNamed(context, Routes.registerProduct);
-          _loadProducts(); // Recarrega a lista ao voltar da tela de cadastro
         },
         child: const Icon(Icons.add),
       ),

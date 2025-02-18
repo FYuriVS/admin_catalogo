@@ -8,7 +8,9 @@ class RegisterProductViewModel extends ChangeNotifier {
   final RegisterProductRepository registerProductRepository;
   late Command1 registerProduct;
 
-  RegisterProductViewModel(this.registerProductRepository) {
+  RegisterProductViewModel({
+    required this.registerProductRepository,
+  }) {
     registerProduct =
         Command1<String, RegisterProductRequest>(_registerProduct);
   }
