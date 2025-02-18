@@ -3,7 +3,6 @@ import 'package:admin_catalogo/core/routes/routes.dart';
 import 'package:admin_catalogo/features/handle-product/domain/entities/product.dart';
 import 'package:admin_catalogo/features/handle-product/presentation/view_models/products_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
