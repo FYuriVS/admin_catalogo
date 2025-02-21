@@ -76,6 +76,11 @@ class _RegisterProductScreenState extends State<RegisterProductScreen> {
           appBar: AppBar(
             title: Text("Cadastrar Produto"),
             notificationPredicate: (notification) => false,
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                icon: Icon(Icons.arrow_back_ios)),
           ),
           body: SingleChildScrollView(
             padding: EdgeInsets.all(16),
