@@ -145,7 +145,7 @@ class _RegisterProductScreenState extends State<RegisterProductScreen> {
                     spacing: 16.0,
                     children: [
                       Material(
-                        color: Theme.of(context).colorScheme.primaryContainer,
+                        color: Colors.redAccent.shade100,
                         borderRadius: BorderRadius.circular(16),
                         child: InkWell(
                           onTap: pickImage,
@@ -180,11 +180,10 @@ class _RegisterProductScreenState extends State<RegisterProductScreen> {
               ),
             ),
           ),
-          bottomNavigationBar: Container(
-            color: Colors.red,
+          bottomNavigationBar: SizedBox(
             height: 50,
             child: Material(
-              color: Theme.of(context).colorScheme.primaryContainer,
+              color: Colors.redAccent.shade100,
               child: InkWell(
                 onTap: registerProduct,
                 child: Center(

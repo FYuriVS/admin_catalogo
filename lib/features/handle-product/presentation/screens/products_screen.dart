@@ -148,7 +148,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
             await viewModel.listProducts.execute();
           }
         },
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.redAccent.shade100,
+        child: Icon(Icons.add),
       ),
     );
   }
