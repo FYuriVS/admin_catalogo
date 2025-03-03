@@ -1,0 +1,1 @@
+/Users/yuri/development/mobile/flutter/admin_catalogo/build/app/intermediates/cxx/Debug/482d3k26/obj/x86_64
