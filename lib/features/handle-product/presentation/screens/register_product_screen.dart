@@ -87,121 +87,159 @@ class _RegisterProductScreenState extends State<RegisterProductScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                spacing: 16.0,
+                spacing: 50,
                 children: [
-                  selectedImages.isNotEmpty
-                      ? SizedBox(
-                          height: size.height * 0.3,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: selectedImages.length,
-                            itemBuilder: (context, index) {
-                              final image = selectedImages[index];
-                              return Stack(
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.only(right: 8),
-                                    width: size.width * 0.9,
-                                    height: size.height * 0.3,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainer,
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child:
-                                          Image.file(image, fit: BoxFit.cover),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: IconButton(
-                                      onPressed: () =>
-                                          deleteSelectedImage(image),
-                                      icon:
-                                          Icon(Icons.delete, color: Colors.red),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        )
-                      : Container(
-                          width: size.width * 0.9,
-                          height: size.height * 0.3,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color:
-                                Theme.of(context).colorScheme.surfaceContainer,
-                          ),
-                          child:
-                              Center(child: Text("Nenhuma imagem selecionada")),
-                        ),
                   Column(
                     spacing: 16.0,
                     children: [
-                      Material(
-                        color: Colors.redAccent.shade100,
-                        borderRadius: BorderRadius.circular(16),
-                        child: InkWell(
-                          onTap: pickImage,
-                          borderRadius: BorderRadius.circular(16),
-                          child: Center(
-                            child: Container(
+                      selectedImages.isNotEmpty
+                          ? SizedBox(
+                              height: size.height * 0.3,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: selectedImages.length,
+                                itemBuilder: (context, index) {
+                                  final image = selectedImages[index];
+                                  return Stack(
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.only(right: 8),
+                                        width: size.width * 0.9,
+                                        height: size.height * 0.3,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainer,
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          child: Image.file(image,
+                                              fit: BoxFit.cover),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: IconButton(
+                                          onPressed: () =>
+                                              deleteSelectedImage(image),
+                                          icon: Icon(Icons.delete,
+                                              color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            )
+                          : Container(
+                              width: size.width * 0.9,
+                              height: size.height * 0.3,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainer,
                               ),
-                              height: 52,
                               child: Center(
-                                child: Text("Adicionar Foto"),
+                                  child: Text("Nenhuma imagem selecionada")),
+                            ),
+                      Column(
+                        spacing: 16.0,
+                        children: [
+                          Material(
+                            color: Colors.redAccent.shade100,
+                            borderRadius: BorderRadius.circular(16),
+                            child: InkWell(
+                              onTap: pickImage,
+                              borderRadius: BorderRadius.circular(16),
+                              child: Center(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  height: 52,
+                                  child: Center(
+                                    child: Text("Adicionar Foto",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                          // SizedBox(height: 16),
+                          CustomTextField(
+                            controller: _nameController,
+                            label: "Nome do produto",
+                          ),
+                          // SizedBox(height: 16),
+                          CustomTextField(
+                            controller: _descriptionController,
+                            label: "Descrição do produto",
+                          ),
+                          // SizedBox(height: 16),
+                        ],
                       ),
-                      // SizedBox(height: 16),
-                      CustomTextField(
-                        controller: _nameController,
-                        label: "Nome do produto",
-                      ),
-                      // SizedBox(height: 16),
-                      CustomTextField(
-                        controller: _descriptionController,
-                        label: "Descrição do produto",
-                      ),
-                      // SizedBox(height: 16),
                     ],
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context, true);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(170, 50),
+                          backgroundColor: Colors.redAccent.shade100,
+                        ),
+                        child: Text(
+                          "Cancelar",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: registerProduct,
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(170, 50),
+                          backgroundColor: Colors.redAccent.shade100,
+                        ),
+                        child: viewModel.registerProduct.running
+                            ? CircularProgressIndicator()
+                            : Text("Salvar Produto",
+                                style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
           ),
-          bottomNavigationBar: SizedBox(
-            height: 50,
-            child: Material(
-              color: Colors.redAccent.shade100,
-              child: InkWell(
-                onTap: registerProduct,
-                child: Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    height: 52,
-                    child: Center(
-                      child: viewModel.registerProduct.running
-                          ? CircularProgressIndicator()
-                          : Text("Salvar Produto"),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // bottomNavigationBar: SizedBox(
+          //   height: 50,
+          //   child: Material(
+          //     color: Colors.redAccent.shade100,
+          //     child: InkWell(
+          //       onTap: registerProduct,
+          //       child: Center(
+          //         child: Container(
+          //           decoration: BoxDecoration(
+          //             borderRadius: BorderRadius.circular(16),
+          //           ),
+          //           height: 52,
+          //           child: Center(
+          //             child: viewModel.registerProduct.running
+          //                 ? CircularProgressIndicator()
+          //                 : Text("Salvar Produto"),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         );
       },
     );
