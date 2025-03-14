@@ -1,5 +1,4 @@
-import 'package:admin_catalogo/core/routes/route.dart';
-import 'package:admin_catalogo/core/routes/routes.dart';
+import 'package:admin_catalogo/core/routing/router.dart';
 import 'package:admin_catalogo/core/ui/resources/fonts.dart';
 import 'package:admin_catalogo/core/ui/resources/theme.dart';
 import 'package:admin_catalogo/core/ui/resources/theme_controller.dart';
@@ -55,15 +54,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return ValueListenableBuilder<ThemeMode>(
         valueListenable: _themeNotifier,
         builder: (context, themeMode, _) {
-          return MaterialApp(
+          return MaterialApp.router(
             title: 'Flutter Demo',
-            navigatorKey: navigatorKey,
             themeMode: themeMode,
             theme: theme.light(),
             darkTheme: theme.dark(),
             debugShowCheckedModeBanner: false,
-            initialRoute: Routes.app,
-            routes: routes,
+            routerConfig: routerConfig(),
           );
         });
   }

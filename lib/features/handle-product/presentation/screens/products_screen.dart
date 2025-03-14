@@ -1,8 +1,9 @@
 import 'package:admin_catalogo/application.dart';
-import 'package:admin_catalogo/core/routes/routes.dart';
+import 'package:admin_catalogo/core/routing/routes.dart';
 import 'package:admin_catalogo/features/handle-product/domain/entities/product.dart';
 import 'package:admin_catalogo/features/handle-product/presentation/view_models/products_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -142,8 +143,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result =
-              await Navigator.pushNamed(context, Routes.registerProduct);
+          final result = await context.push(Routes.registerProduct);
           if (result == true) {
             await viewModel.listProducts.execute();
           }
@@ -151,7 +151,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
         backgroundColor: Colors.redAccent.shade100,
         child: Icon(
           Icons.add,
-          color: Colors.white,
+          color: Colors.blue,
         ),
       ),
     );
